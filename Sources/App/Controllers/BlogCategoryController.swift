@@ -5,7 +5,7 @@ import Authentication
 
 struct BlogCategoryController: RouteCollection {
     func boot(router: Router) throws {
-        let categoriesRoute = router.grouped("spectre", "blog-categorory")
+        let categoriesRoute = router.grouped("spectre", "blog-category")
         
         let authSessionRoutes = router.grouped(User.authSessionsMiddleware())
 
@@ -19,6 +19,7 @@ struct BlogCategoryController: RouteCollection {
         
         adminTokenAuthGroup.post(BlogCategoryModel.self, use: createHandler)
         adminTokenAuthGroup.delete(BlogCategoryModel.parameter, use: deleteHandler)
+        adminTokenAuthGroup.put(BlogCategoryModel.parameter, use: updateHandler)
         
         
     }
@@ -43,6 +44,17 @@ struct BlogCategoryController: RouteCollection {
     func getCoursesHandler(_ req: Request) throws -> Future<[BlogPostModel]> {
         return try req.parameters.next(BlogCategoryModel.self).flatMap(to: [BlogPostModel].self) { category in
             try category.blogPostModel.query(on: req).all()
+        }
+    }
+    
+    // DEVSCORCH: Update handler for Categories
+    
+    func updateHandler(_ req: Request) throws -> Future<BlogCategoryModel> {
+        return try flatMap(to: BlogCategoryModel.self, req.parameters.next(BlogCategoryModel.self), req.content.decode(BlogCategoryModel.self)) {
+                category, updatedCategory in
+            category.name = updatedCategory.name
+            
+            return category.save(on: req)
         }
     }
     

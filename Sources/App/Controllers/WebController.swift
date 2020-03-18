@@ -22,7 +22,9 @@ struct WebsiteController: RouteCollection {
         authSessionRoutes.get("subscriptions", use: getSubscriptionHandler)
         authSessionRoutes.get("downloads", use: getDownloadHandler)
         authSessionRoutes.get("courses", Courses.parameter, use: courseInformationHandler)
-                
+        authSessionRoutes.get("category", BlogCategoryModel.parameter, use: blogCategoryHandler)
+        authSessionRoutes.get("category", BlogCategoryModel.parameter, BlogPostModel.parameter,  use: blogPostHandler)
+        
         authSessionRoutes.get("freelance", use: serviceHandler)
         authSessionRoutes.get("company", use: CompanyHandler)
         
@@ -35,6 +37,8 @@ struct WebsiteController: RouteCollection {
         authSessionRoutes.post("forgotPassword", use: forgotPasswordPostHandler)
         authSessionRoutes.get("resetPassword", use: resetPasswordHandler)
         authSessionRoutes.post(ResetPasswordData.self, at: "resetPassword", use: resetPasswordPostHandler)
+        
+        
         protectedRoute.get("sections", CourseSection.parameter, use: courseSectionVideoPlayer)
 
         
@@ -48,11 +52,6 @@ struct WebsiteController: RouteCollection {
         protectedRoute.post("sections", CourseSection.parameter, use: courseSectionFinishedPostHandler)
         
         
-        protectedRoute.get("subscribe", use: stripePaymentPageHandler)
-        protectedRoute.get("cancel", use: cancelSubscriptionPageHandler)
-        protectedRoute.get("success", use: subscriptionSuccessPageHandler)
-        protectedRoute.get("failure", use: subscriptionFailedPageHandler)
-        
         authSessionRoutes.get("users", User.parameter, "userImage", use: getUsersProfilePictureHandler)
         
         
@@ -63,10 +62,11 @@ struct WebsiteController: RouteCollection {
     func indexHandler(_ req: Request) throws -> Future<View> {
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
+        let blogCategory = BlogCategoryModel.query(on: req).all()
         let showCookieMessage = req.http.cookies["cookies-accepted"] == nil
-        let context = IndexContext(title: "Homepage", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, cookieMessage: showCookieMessage)
+        let context = IndexContext(blogcategories: blogCategory, title: "Homepage", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, cookieMessage: showCookieMessage)
         print("\(context)")
-        print(loggedInUser?.subscriptionIsActive)
+        print(blogCategory)
             return try req.view().render("index", context)
         }
     
@@ -74,10 +74,11 @@ struct WebsiteController: RouteCollection {
     // DEVSCORCH: Course CategoryHandler
     
     func getAllCategoriesHandler(_ req: Request) throws -> Future<View> {
+        let blogCategory = BlogCategoryModel.query(on: req).all()
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
         let courses = Courses.query(on: req).all()
-        let context = CourseContext(userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, courses: courses)
+        let context = CourseContext(blogcategories: blogCategory, userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, courses: courses)
         return try req.view().render("courses", context)
     }
     
@@ -88,11 +89,9 @@ struct WebsiteController: RouteCollection {
             let userLoggedIn = try req.isAuthenticated(User.self)
             let loggedInUser = try req.authenticated(User.self)
             let sections = try course.section.query(on: req).all()
+            let blogCategory = BlogCategoryModel.query(on: req).all()
             
-            let context = CourseInformationContext(userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, title: course.courseName,courseName: course.courseName, courseDescription: course.courseDescription, instructor: course.instructor, sections: course.sections, lectures: course.lectures, publishDate: course.publishDate, difficulty: course.difficulty, courseDuration: course.courseDuration, beginURL: course.beginURL, courses: course, section: sections, forWhoName: course.forWhoName, forWhoText: course.forWhoText, introVideo: course.introVideo, lastupdatedDate: course.lastUpdatedDate)
-            
-            
-            
+            let context = CourseInformationContext(blogcategories: blogCategory, userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, title: course.courseName,courseName: course.courseName, courseDescription: course.courseDescription, instructor: course.instructor, sections: course.sections, lectures: course.lectures, publishDate: course.publishDate, difficulty: course.difficulty, courseDuration: course.courseDuration, beginURL: course.beginURL, courses: course, section: sections, forWhoName: course.forWhoName, forWhoText: course.forWhoText, introVideo: course.introVideo, lastupdatedDate: course.lastUpdatedDate)
             return try req.view().render("courseinformation", context)
         }
     }
@@ -102,8 +101,9 @@ struct WebsiteController: RouteCollection {
             let userLoggedIn = try req.isAuthenticated(User.self)
             let loggedInUser = try req.authenticated(User.self)
             let videos = try section.videos.query(on: req).all()
+            let blogCategory = BlogCategoryModel.query(on: req).all()
         
-            let context = courseSectionVideoPlayerContext(userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, sections: section, sectionName: section.sectionName, videos: videos, title: "Devscorch | Player enviroment")
+            let context = courseSectionVideoPlayerContext(blogcategories: blogCategory, userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, sections: section, sectionName: section.sectionName, videos: videos, title: "Devscorch | Player enviroment")
             
             if loggedInUser?.subscriptionIsActive == true {
                 return try req.view().render("videoplayer", context)
@@ -131,7 +131,10 @@ struct WebsiteController: RouteCollection {
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
         let subscriptions = Subscription.query(on: req).all()
-        let context = SubscriptionContext(loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, subscription: subscriptions)
+        let blogCategory = BlogCategoryModel.query(on: req).all()
+        
+        
+        let context = SubscriptionContext(blogcategories: blogCategory, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, subscription: subscriptions)
         return try req.view().render("subscription", context)
     }
     
@@ -141,9 +144,41 @@ struct WebsiteController: RouteCollection {
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
         let downloads = Download.query(on: req).all()
-        let context = DownloadContext( loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, downloads: downloads)
+        let blogCategory = BlogCategoryModel.query(on: req).all()
+        let context = DownloadContext( blogcategories: blogCategory, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, downloads: downloads)
         return try req.view().render("downloads", context)
     }
+    
+    // DEVSCORCH: Blog Category Controller
+    
+    func blogCategoryHandler(_ req: Request) throws -> Future<View> {
+        return try req.parameters.next(BlogCategoryModel.self).flatMap(to: View.self) { category in
+            let userLoggedIn = try req.isAuthenticated(User.self)
+            let loggedInUser = try req.authenticated(User.self)
+            let blogCategory = BlogCategoryModel.query(on: req).all()
+            let blogPosts = try category.blogPostModel.query(on: req).all()
+            let context = BlogCategoryContext(blogcategories: blogCategory, blog: blogPosts, categories: category, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, categoryName: category.name)
+            print("\(context.blog)")
+            
+            return try req.view().render("category", context)
+            
+        }
+    }
+    
+    func blogPostHandler(_ req: Request) throws -> Future<View> {
+        return try req.parameters.next(BlogPostModel.self).flatMap(to: View.self) { blogpost in
+            let userLoggedIn = try req.isAuthenticated(User.self)
+            let loggedInUser = try req.authenticated(User.self)
+            let blogCategory = BlogCategoryModel.query(on: req).all()
+
+            
+            let context = BlogPostContext(blogcategories: blogCategory, userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, blogTitle: blogpost.blogTitle, publicationDate: blogpost.publicationDate, writer: blogpost.writer, tags: [blogpost.tags!], publication: blogpost.publication)
+            
+            return try req.view().render("publication", context)
+        }
+    }
+    
+    
     
     // DEVSCORCH: LoginHandler
     
@@ -241,7 +276,8 @@ struct WebsiteController: RouteCollection {
             let userLoggedIn = try req.isAuthenticated(User.self)
             let loggedInUser = try req.authenticated(User.self)
             let isSubscribed = loggedInUser?.subscriptionIsActive
-            let context = UserSubscriptionContext(title: user.username, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, user: user, isSubscribed: isSubscribed)
+            let blogCategory = BlogCategoryModel.query(on: req).all()
+            let context = UserSubscriptionContext(blogcategories: blogCategory, title: user.username, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, user: user, isSubscribed: isSubscribed)
             return try req.view().render("subscribe", context)
         }
     }
@@ -252,7 +288,8 @@ struct WebsiteController: RouteCollection {
         return try req.parameters.next(User.self).flatMap(to: View.self) { user in
             let userLoggedIn = try req.isAuthenticated(User.self)
             let loggedInUser = try req.authenticated(User.self)
-            let context = ProfileContext(loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, id: user.id, title: user.username, username: user.username, name: user.name, lastName: user.lastName, dateOfBirth: user.dateOfBirth, userImage: user.userImage, email: user.email, userDescription: user.userDescription, specialty: user.specialty, user: user, subscription: user.subscriptionIsActive)
+            let blogCategory = BlogCategoryModel.query(on: req).all()
+            let context = ProfileContext(blogcategories: blogCategory, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, id: user.id, title: user.username, username: user.username, name: user.name, lastName: user.lastName, dateOfBirth: user.dateOfBirth, userImage: user.userImage, email: user.email, userDescription: user.userDescription, specialty: user.specialty, user: user, subscription: user.subscriptionIsActive)
             return try req.view().render("profile", context)
         }
     }
@@ -284,7 +321,8 @@ struct WebsiteController: RouteCollection {
         return try req.parameters.next(User.self).flatMap(to: View.self) { user in
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
-        let context = ProfileContext(loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, id: user.id, title: user.username, username: user.username, name: user.name, lastName: user.lastName, dateOfBirth: user.dateOfBirth, userImage: user.userImage, email: user.email, userDescription: user.userDescription, specialty: user.specialty, user: user, subscription: user.subscriptionIsActive)
+            let blogCategory = BlogCategoryModel.query(on: req).all()
+            let context = ProfileContext(blogcategories: blogCategory, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, id: user.id, title: user.username, username: user.username, name: user.name, lastName: user.lastName, dateOfBirth: user.dateOfBirth, userImage: user.userImage, email: user.email, userDescription: user.userDescription, specialty: user.specialty, user: user, subscription: user.subscriptionIsActive)
         return try req.view().render("userimage", context)
         }
     }
@@ -317,7 +355,8 @@ struct WebsiteController: RouteCollection {
         return try req.parameters.next(User.self).flatMap(to: View.self) { user in
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
-        let context = ProfileContext(loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, id: user.id, title: user.username, username: user.username, name: user.name, lastName: user.lastName, dateOfBirth: user.dateOfBirth, userImage: user.userImage, email: user.email, userDescription: user.userDescription, specialty: user.specialty, user: user, subscription: user.subscriptionIsActive)
+            let blogCategory = BlogCategoryModel.query(on: req).all()
+            let context = ProfileContext(blogcategories: blogCategory, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, id: user.id, title: user.username, username: user.username, name: user.name, lastName: user.lastName, dateOfBirth: user.dateOfBirth, userImage: user.userImage, email: user.email, userDescription: user.userDescription, specialty: user.specialty, user: user, subscription: user.subscriptionIsActive)
         return try req.view().render("mysubscription", context)
         }
     }
@@ -398,7 +437,8 @@ struct WebsiteController: RouteCollection {
             let userLoggedIn = try req.isAuthenticated(User.self)
             let loggedInUser = try req.authenticated(User.self)
             let isSubscribed = loggedInUser?.subscriptionIsActive
-            let context = UserSubscriptionContext(title: user.username, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, user: user, isSubscribed: isSubscribed)
+            let blogCategory = BlogCategoryModel.query(on: req).all()
+            let context = UserSubscriptionContext(blogcategories: blogCategory, title: user.username, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, user: user, isSubscribed: isSubscribed)
             return try req.view().render("subscribe", context)
         }
         
@@ -409,62 +449,20 @@ struct WebsiteController: RouteCollection {
     func serviceHandler(_ req: Request) throws -> Future<View> {
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
-        let context = FreelanceContext(loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, title: "Freelance ")
+        let blogCategory = BlogCategoryModel.query(on: req).all()
+        let context = FreelanceContext(blogcategories: blogCategory, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, title: "Freelance ")
         return try req.view().render("freelance", context)
     }
     
     func CompanyHandler(_ req: Request) throws -> Future<View> {
         let userLoggedIn = try req.isAuthenticated(User.self)
         let loggedInUser = try req.authenticated(User.self)
-        let context = CompanyContext(title: "Company information", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn)
+        let blogCategory = BlogCategoryModel.query(on: req).all()
+        let context = CompanyContext(blogcategories: blogCategory, title: "Company information", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn)
         
         return try req.view().render("company", context)
         
     }
-    
-    
-    // DEVSCORCH: Stripe API
-    
-    func stripePaymentPageHandler(_ req: Request) throws -> Future<View> {
-        let userLoggedIn = try req.isAuthenticated(User.self)
-        let loggedInUser = try req.authenticated(User.self)
-        let context = StripePaymentPageContext(title: "Start Subscription", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn)
-        
-        return try req.view().render("subscribe", context)
-    }
-    
-//    func stripeSubscripeHandler(_ req: Request) throws -> Future<BasicRespone> {
-//        
-//    }
-    
-    func cancelSubscriptionPageHandler(_ req: Request) throws -> Future<View> {
-        let userLoggedIn = try req.isAuthenticated(User.self)
-              let loggedInUser = try req.authenticated(User.self)
-              let context = StripeCancelSubscriptionHandlerContext(title: "Cancel Subscription", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn)
-              
-              return try req.view().render("cancel", context)
-    }
-    
-//    func cancelSubscriptionHandler(_ req: Request) throws -> Future<BasicResponse> {
-//
-//    }
-    
-    func subscriptionSuccessPageHandler(_ req: Request) throws -> Future<View> {
-        let userLoggedIn = try req.isAuthenticated(User.self)
-        let loggedInUser = try req.authenticated(User.self)
-        let context = StripeSuccessContext(title: "Subscription is successfull", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn)
-        
-        return try req.view().render("success", context)
-    }
-    
-    func subscriptionFailedPageHandler(_ req: Request) throws -> Future<View> {
-        let userLoggedIn = try req.isAuthenticated(User.self)
-        let loggedInUser = try req.authenticated(User.self)
-        let context = StripeFailedContext(title: "Subscription failed", loggedInUser: loggedInUser, userLoggedIn: userLoggedIn)
-        
-        return try req.view().render("failed", context)
-    }
-    
     
     
     
@@ -483,38 +481,9 @@ struct RegisterPostData: Content {
     let email: String
 }
 
-struct StripePaymentPageContext : Encodable {
-    let title: String
-    let loggedInUser: User?
-    let userLoggedIn: Bool
-}
-
-struct StripeSubscriptionContext: Encodable {
-    let title: String
-    let loggedInUser: User?
-    let userLoggedIn: Bool
-}
-
-struct StripeCancelSubscriptionHandlerContext: Encodable {
-    let title: String
-    let loggedInUser: User?
-    let userLoggedIn: Bool
-}
-
-struct StripeSuccessContext: Encodable {
-    let title: String
-    let loggedInUser: User?
-    let userLoggedIn: Bool
-}
-
-struct StripeFailedContext: Encodable {
-    let title: String
-    let loggedInUser: User?
-    let userLoggedIn: Bool
-}
-
 
 struct IndexContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let title: String
     let loggedInUser: User?
     let userLoggedIn: Bool
@@ -522,6 +491,7 @@ struct IndexContext: Encodable {
 }
 
 struct CourseContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let title = "Courses"
     let userLoggedIn: Bool
     let loggedInUser: User?
@@ -529,6 +499,7 @@ struct CourseContext: Encodable {
 }
 
 struct CourseInformationContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let userLoggedIn: Bool
     let loggedInUser: User?
     let title: String
@@ -550,6 +521,7 @@ struct CourseInformationContext: Encodable {
 }
 
 struct courseSectionVideoPlayerContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let userLoggedIn: Bool
     let loggedInUser: User?
     let sections: CourseSection
@@ -558,8 +530,31 @@ struct courseSectionVideoPlayerContext: Encodable {
     let title: String
 }
 
+struct BlogCategoryContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
+    let blog: Future<[BlogPostModel]>
+    let categories: BlogCategoryModel
+    let loggedInUser: User?
+    let userLoggedIn: Bool
+    
+    let categoryName: String
+    
+}
+
+struct BlogPostContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
+
+    let userLoggedIn: Bool
+    let loggedInUser: User?
+    var blogTitle: String
+    var publicationDate: String
+    var writer: String
+    var tags: [String]
+    var publication: String
+}
 
 struct SubscriptionContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let loggedInUser: User?
     let userLoggedIn: Bool
     let title = "subscription"
@@ -568,6 +563,7 @@ struct SubscriptionContext: Encodable {
 }
 
 struct DownloadContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let loggedInUser: User?
     let userLoggedIn: Bool
     let title = "Downloads"
@@ -575,12 +571,14 @@ struct DownloadContext: Encodable {
 }
 
 struct FreelanceContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let loggedInUser: User?
     let userLoggedIn: Bool
     let title: String
 }
 
 struct UserContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let loggedInUser: User?
     let userLoggedIn: Bool
     let title: String
@@ -588,6 +586,7 @@ struct UserContext: Encodable {
 }
 
 struct LoginContext: Encodable {
+    
     let loginError: Bool
     init(loginError: Bool = false) {
         self.loginError = loginError
@@ -596,6 +595,7 @@ struct LoginContext: Encodable {
 }
 
 struct RegisterContext: Encodable {
+   // let blogcategories: Future<[BlogCategoryModel]>
     let title = "Register"
     
     let message: String?
@@ -605,6 +605,7 @@ struct RegisterContext: Encodable {
 }
 
 struct ProfileContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let loggedInUser: User?
     let userLoggedIn: Bool
     let id: UUID?
@@ -634,6 +635,7 @@ struct UpdateProfileContext: Decodable {
 }
 
 struct ResetPasswordContext: Encodable {
+   // let blogcategories: Future<[BlogCategoryModel]>
     let title = "Reset Password"
     let error: Bool?
     
@@ -648,6 +650,7 @@ struct ResetPasswordData: Content {
 }
 
 struct UserSubscriptionContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let title: String
     let loggedInUser: User?
     let userLoggedIn: Bool?
@@ -660,6 +663,7 @@ struct ImageUploadData: Content {
 }
 
 struct CheckoutContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let title: String
     let loggedInUser: User?
     let userLoggedIn: Bool?
@@ -668,6 +672,7 @@ struct CheckoutContext: Encodable {
 }
 
 struct CompanyContext: Encodable {
+    let blogcategories: Future<[BlogCategoryModel]>
     let title: String
     let loggedInUser: User?
     let userLoggedIn: Bool?

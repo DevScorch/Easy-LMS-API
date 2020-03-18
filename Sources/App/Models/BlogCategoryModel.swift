@@ -19,8 +19,8 @@ extension BlogCategoryModel: Migration {}
 extension BlogCategoryModel: Parameter {}
 
 extension BlogCategoryModel {
-    var blogPostModel: Siblings<BlogCategoryModel, BlogPostModel, BlogCategoryPivot> {
-        return siblings()
+    var blogPostModel: Children<BlogCategoryModel, BlogPostModel> {
+        return children(\.categoryID)
     }
 }
 

@@ -60,7 +60,7 @@
                             <li><p class="card-text">Access to future courses and content </p></li>
                             <li><p class="card-text">Support with your portfolio</p></li>
                         </ul>
-                        <h5 class="card-title card-h5">$6,99</h5>
+                        <h5 class="card-title card-h5">$6.99</h5>
                         #if(loggedInUser) {
                         <button class="blaze-button" onclick="location.href='https://payment.devscorch.com'" type="button">Subscribe</button>
                         } else {
@@ -71,6 +71,7 @@
                 </div>
                 </div>
             </div>
+            <div style="color:transperent" id="userid">#(loggedInUser.id)</div>
         </div>
     #embed("footer")
 

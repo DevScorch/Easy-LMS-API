@@ -10,24 +10,32 @@ final class BlogPostModel: Codable {
     var blogTitle: String
     var publicationDate: String
     var writer: String
-    var tags: Array<String>
+    var tags: String?
     var publication: String
+    var introText: String
     
     // DEVSCORCH: Blog intro variables
     
-    var category: String
+    var categoryID: BlogCategoryModel.ID
     var introImage: String
     
-    init(blogTitle: String, publicationDate: String, writer: String, tags: Array<String>, publication: String, category: String, introImage: String) {
+    init(blogTitle: String, publicationDate: String, writer: String, tags: String, publication: String, categoryID: BlogCategoryModel.ID, introImage: String, introText: String) {
         self.blogTitle = blogTitle
         self.publication = publicationDate
         self.writer = writer
         self.tags = tags
-        self.category = category
+        self.categoryID = categoryID
         self.introImage = introImage
         self.publicationDate = publicationDate
+        self.introText = introText
     }
     
+}
+
+extension BlogPostModel {
+    var category: Parent<BlogPostModel, BlogCategoryModel> {
+        return parent(\.categoryID)
+    }
 }
 
 extension BlogPostModel: PostgreSQLUUIDModel {
@@ -35,8 +43,11 @@ extension BlogPostModel: PostgreSQLUUIDModel {
 }
 
 extension BlogPostModel: Migration {
-    var categories: Siblings<BlogPostModel, BlogCategoryModel, BlogCategoryPivot> {
-        return siblings()
+    static func prepare(on connection: PostgreSQLConnection) -> EventLoopFuture<Void> {
+        return Database.create(self, on: connection) { builder in
+            try addProperties(to: builder)
+            builder.reference(from: \.categoryID, to: \BlogCategoryModel.id)
+        }
     }
     
 }

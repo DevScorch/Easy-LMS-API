@@ -12,6 +12,8 @@ public func routes(_ router: Router) throws {
     let downloadController = DownloadsController()
     let sectionController = SectionController()
     let videoController = VideoController()
+    let blogCategoryController = BlogCategoryController()
+    let blogController = BlogController()
     
     
     
@@ -24,5 +26,7 @@ public func routes(_ router: Router) throws {
     try router.register(collection: downloadController)
     try router.register(collection: sectionController)
     try router.register(collection: videoController)
+    try router.register(collection: blogCategoryController)
+    try router.register(collection: blogController)
     
     }

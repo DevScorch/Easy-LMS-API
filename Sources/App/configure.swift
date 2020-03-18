@@ -75,6 +75,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(model: Download.self, database: .psql)
     migrations.add(model: VideoModel.self, database: .psql)
     migrations.add(model: ResetPasswordToken.self, database: .psql)
+    migrations.add(model: BlogCategoryModel.self, database: .psql)
+    migrations.add(model: BlogPostModel.self, database: .psql)
+    migrations.add(model: BlogCategoryPivot.self, database: .psql)
     
     services.register(migrations)
     

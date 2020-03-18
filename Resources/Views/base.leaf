@@ -17,33 +17,40 @@
                     <a class="nav-item nav-link #if(title == "Courses"){active}" href="/courses">COURSES</a>
                     <a class="nav-item nav-link #if(title == "Pricing"){active}" href="/subscriptions">PRICING</a>
                     <a class="nav-item nav-link #if(title == "Downloads"){active}" href="/downloads">DOWNLOADS</a>
-                          
-                            
-                            
-                      #if(userLoggedIn) {
-                        <div class="dropdown">
-                          <a class="nav-item nav-link dropdown-toggle profile-button #if(title == "Profile"){active}" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            #(loggedInUser.username)</a>
+                    <div class="dropdown">
+                      <a class="nav-item nav-link dropdown-toggle profile-button #if(title == "Blog"){active}" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ARTICLES</a>
+                              <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left" aria-labelledby="dropdownMenuLink">
+                              #if(count(blogcategories) > 0) {
+                                #for(category in blogcategories) {
+                                    <a class="dropdown-item drop-a #if(title == "#(category.name)"){active}" href="/category/#(category.id)">#(category.name)</a>
+                                  }
+                                  }
+                              </div>
+                    </div>
+                  
+
+                  #if(userLoggedIn) {
+                <div class="dropdown">
+                    <a class="nav-item nav-link dropdown-toggle profile-button #if(title == "Profile"){active}" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        #(loggedInUser.username)</a>
                           <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left" aria-labelledby="dropdownMenuLink">
                             #if(loggedInUser.userImage) {
                               <img class="profile-img" src="/users/#(loggedInUser.id)/userImage" alt="#(user.username)">
                               } else {
                                 <img class="profile-img" src="/assets/steve.png" alt="#(user.username)">
                               }
-                            <div class="drop">
+                          <div class="drop">
                             <a class="dropdown-item drop-a #if(title == "Profile"){active}" href="/profile/#(loggedInUser.id)">My Profile</a>
-                            <!--- <a class="dropdown-item drop-a #if(title == "My-profile"){active}"" href="/my-subscription/#(loggedInUser.id)">My Subscription</a> -->
                             <form class="form-inline" action="/logout" method="POST">
                               <input class="dropdown-item drop-a-2" type="submit" value="Sign out">
                             </form>
                             </div>
                           </div>
-                } else {
+                  } else {
                 <a class="btn btn-secondary whitepaper-button #if(title == "Register"){active}" href="/register">REGISTER</a>
                 <a class="btn btn-secondary login-button #if(title == "Login"){active}" href="/login">LOGIN</a>
                 }
-                 </div>
-            </div>           
+          </div>        
         </nav>
 
 
