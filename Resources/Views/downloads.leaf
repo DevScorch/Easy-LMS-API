@@ -46,15 +46,14 @@
             <div class="row">             
                 #if(count(downloads) > 0) {
                     #for(download in downloads) {
-                        <div class="col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                             <div class="card  grow bg-dark text-white">
                                  <img src="#(download.image)" class="card-img">
                               <div class="card-img-overlay">
                                 <h5 class="card-title">#(download.name)</h5>
                                  <p class="card-text">#(download.description)</p>
-                                 <p class="card-text">Size: #(download.fileSize)</p>
-                                 <p class="card-text">Size: #(download.files)</p>
-                                 <a href="download.downloadUrl">Check out</a>
+                                 <p class="card-text">Size: #(download.fileSize) MB</p>
+                                 <button class="post-button "href="download.downloadUrl">Download</button>
                                 </div>
                             </div>
                         </div>

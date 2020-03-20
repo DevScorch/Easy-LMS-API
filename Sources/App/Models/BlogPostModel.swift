@@ -12,14 +12,13 @@ final class BlogPostModel: Codable {
     var writer: String
     var tags: String?
     var publication: String
-    var introText: String
     
     // DEVSCORCH: Blog intro variables
     
     var categoryID: BlogCategoryModel.ID
     var introImage: String
     
-    init(blogTitle: String, publicationDate: String, writer: String, tags: String, publication: String, categoryID: BlogCategoryModel.ID, introImage: String, introText: String) {
+    init(blogTitle: String, publicationDate: String, writer: String, tags: String, publication: String, categoryID: BlogCategoryModel.ID, introImage: String) {
         self.blogTitle = blogTitle
         self.publication = publicationDate
         self.writer = writer
@@ -27,7 +26,6 @@ final class BlogPostModel: Codable {
         self.categoryID = categoryID
         self.introImage = introImage
         self.publicationDate = publicationDate
-        self.introText = introText
     }
     
 }

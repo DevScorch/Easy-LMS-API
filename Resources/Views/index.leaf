@@ -171,14 +171,14 @@
             <div class="row">
                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
                     <div class="roadmap-text w3-animate-top">
-                        <h3 class="team-h3">WHO AM I</h3>
+                        <h3 class="team-h3">WHO ARE WE</h3>
                     </div>
                 </div> 
             </div>
                 <div class="row team-row">
                     <div class="col-sm-12 col-md-3 col-lg-3 col-xl-3">
                         <div class="team-member w3-animate-top">
-                            <img class="team-image " src="/assets/placeholder.png">
+                            <img class="team-image " src="/pictures/johan.jpg">
                             <p class="team-name">Johan t'Sas</p>
                             <p class="team-p">CEO and Developer</p>
                             <div class="team-buttons justify-content-center">
@@ -190,7 +190,7 @@
                     </div>
                     <div class="col-sm-12 col-md-3 col-lg-3 col-xl-3">
                         <div class="team-member w3-animate-top">
-                            <img class="team-image " src="/assets/placeholder.png">
+                            <img class="team-image " src="/pictures/goutam.jpeg">
                             <p class="team-name">Goutam B Seervi</p>
                             <p class="team-p">Frontend Developer</p>
                             <div class="team-buttons justify-content-center">
@@ -202,7 +202,7 @@
                     </div>
                     <div class="col-sm-12 col-md-3 col-lg-3 col-xl-3">
                         <div class="team-member w3-animate-top">
-                            <img class="team-image " src="/assets/placeholder.png">
+                            <img class="team-image " src="/pictures/umair.jpeg">
                             <p class="team-name">Umair Nehri</p>
                             <p class="team-p">Frontend Developer</p>
                             <div class="team-buttons justify-content-center">

@@ -23,7 +23,7 @@ struct WebsiteController: RouteCollection {
         authSessionRoutes.get("downloads", use: getDownloadHandler)
         authSessionRoutes.get("courses", Courses.parameter, use: courseInformationHandler)
         authSessionRoutes.get("category", BlogCategoryModel.parameter, use: blogCategoryHandler)
-        authSessionRoutes.get("category", BlogCategoryModel.parameter, BlogPostModel.parameter,  use: blogPostHandler)
+        authSessionRoutes.get("category", "blog", BlogPostModel.parameter,  use: blogPostHandler)
         
         authSessionRoutes.get("freelance", use: serviceHandler)
         authSessionRoutes.get("company", use: CompanyHandler)
@@ -157,7 +157,7 @@ struct WebsiteController: RouteCollection {
             let loggedInUser = try req.authenticated(User.self)
             let blogCategory = BlogCategoryModel.query(on: req).all()
             let blogPosts = try category.blogPostModel.query(on: req).all()
-            let context = BlogCategoryContext(blogcategories: blogCategory, blog: blogPosts, categories: category, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, categoryName: category.name)
+            let context = BlogCategoryContext(blogcategories: blogCategory, categoryID: category.id!, blog: blogPosts, categories: category, loggedInUser: loggedInUser, userLoggedIn: userLoggedIn, categoryName: category.name)
             print("\(context.blog)")
             
             return try req.view().render("category", context)
@@ -172,7 +172,7 @@ struct WebsiteController: RouteCollection {
             let blogCategory = BlogCategoryModel.query(on: req).all()
 
             
-            let context = BlogPostContext(blogcategories: blogCategory, userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, blogTitle: blogpost.blogTitle, publicationDate: blogpost.publicationDate, writer: blogpost.writer, tags: [blogpost.tags!], publication: blogpost.publication)
+            let context = BlogPostContext(blogcategories: blogCategory, userLoggedIn: userLoggedIn, loggedInUser: loggedInUser, blogTitle: blogpost.blogTitle, publicationDate: blogpost.publicationDate, writer: blogpost.writer, tags: blogpost.tags!, publication: blogpost.publication, introImage: blogpost.introImage)
             
             return try req.view().render("publication", context)
         }
@@ -532,6 +532,7 @@ struct courseSectionVideoPlayerContext: Encodable {
 
 struct BlogCategoryContext: Encodable {
     let blogcategories: Future<[BlogCategoryModel]>
+    let categoryID: UUID
     let blog: Future<[BlogPostModel]>
     let categories: BlogCategoryModel
     let loggedInUser: User?
@@ -549,8 +550,10 @@ struct BlogPostContext: Encodable {
     var blogTitle: String
     var publicationDate: String
     var writer: String
-    var tags: [String]
+    var tags: String
     var publication: String
+    var introImage: String
+    
 }
 
 struct SubscriptionContext: Encodable {

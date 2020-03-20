@@ -13,14 +13,25 @@
 
 
 
-        <title>Devscorch | Pricing</title>
+        <title>#(blogTitle)</title>
 
 </head>
 
 <body>
     #embed("base")
         <div class="container-fluid">
+           <div class="main-container">
+                <div class="row">
+                    <div class="intro-text">
+                            <h1 class="blog-name">#(blogTitle)</h1>
+                            <h6 class="publication-date">Publication date: #(publicationDate)</h6>
+                            <p class="writer">Author: #(writer)</p>
+                        </div>
+                </div>
+           </div>
+           <div class="content-container">
            
+           </div>
         </div>
     #embed("footer")
 

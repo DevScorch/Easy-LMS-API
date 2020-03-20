@@ -48,9 +48,10 @@ body {
 }
 
 .card {
+    max-width: 600px;
     margin-left: 70px;
-    margin-right: 30px;
-    margin-top: 30px;
+    margin-right: 70px;
+    margin-top: 50px;
     height: auto;
     border: none;
     width: auto;
@@ -59,11 +60,39 @@ body {
 .card-body {
     background-color: #07081A;
     border: none;
+    max-width: 600px;
+
 }
 
 .card-title {
     color: #543A9B;
 }
 
+.card-text {
+    margin-top: -10px;
+}
+
 .grow { transition: all .2s ease-in-out; }
 .grow:hover { transform: scale(1.1); }
+
+@media (min-width: 1600px) {
+
+    .card {
+        margin-left: 40px;
+        margin-right: 40px;
+        height: auto;
+        border: none;
+    }
+
+}
+
+@media (min-width: 1400px) {
+
+    .card {
+        margin-left: 20px;
+        margin-right: 20px;
+        height: auto;
+        border: none;
+    }
+
+}

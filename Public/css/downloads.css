@@ -76,14 +76,28 @@ body {
 }
 
 .card {
-    width: 17rem;
-    height: 17rem;
+    width: 15rem;
+    height: 15rem;
     margin-left: auto;
     margin-right: auto;
     border-radius: 15px;
-    margin-top: 20px;
-    border: none;
+    margin-top: 30px;
+    border: transparent;
     margin-bottom: 20px;
+    background-color: transparent;
+}
+
+.post-button {
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    width: 120px;
+    height: 30px;
+    background: linear-gradient(0.25turn,#7318B7, #2AD8EC);
+    border: none;
+    color: white;
+    text-align: center;
+    margin-top: 10px;
 }
 
 .card-title {
@@ -91,6 +105,6 @@ body {
 }
 
 .card-text {
-    font-weight: bold;
-    margin-top: 20px;
+    font-weight: 450;
+    margin-top: 10px;
 }

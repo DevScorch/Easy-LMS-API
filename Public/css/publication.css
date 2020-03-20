@@ -1,0 +1,62 @@
+/* Main CSS File with all Index CSS */
+
+
+/*Fonts */
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:400,700&display=swap');
+
+body {
+    font-family: 'Ubuntu', Courier;
+    background-color: rgb(7, 8, 26);
+
+}
+
+.container-fluid {
+    padding-right:0;
+    padding-left:0;
+    margin-right:auto;
+    margin-left:auto
+ }
+
+.main-container {
+    max-width: 2000px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.intro-text {
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 80px;
+}
+
+.content-container {
+    min-height: 600px;
+    max-width: 2000px;
+    margin-top: 50px;
+    margin-right: auto;
+    margin-left: auto;
+    background-color: #0C0E27;
+}
+
+.blog-name {
+    color: white;
+    text-align: center;
+}
+.publication-date {
+    color: white;
+    text-align: center;
+    margin-top: 80px;
+
+}
+
+.writer {
+    color: white;
+    text-align: center;
+    size: 9px;;
+}
+
+/*Custom Markup */
+
+.title-h3 {
+    color: #543A9B;
+}

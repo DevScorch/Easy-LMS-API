@@ -25,6 +25,7 @@ struct UserController: RouteCollection {
         basicAuthGroup.post("login", use: loginHandler)
         tokenAuthGroup.get(User.parameter, use: getHandler)
         tokenAuthGroup.get(use: getAllHandler)
+        basicAuthGroup.put(User.parameter, use: updateHandler)
         tokenAuthGroup.put(User.parameter, use: updateHandler)
         
     }
@@ -72,6 +73,7 @@ struct UserController: RouteCollection {
                 user, updatedUser in
             user.name = updatedUser.name
             user.lastName = updatedUser.lastName
+            user.stripe_session_id = updatedUser.stripe_session_id
             
             return user.save(on: req)
         }
