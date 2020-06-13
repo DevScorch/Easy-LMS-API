@@ -9,7 +9,6 @@ struct AdminController: RouteCollection {
         
         // DEVSCORCH: Admin Route
         
-        let adminRoute = router.grouped("spectre", "admin")
         
         // DEVSCORCH: AuthMiddleWare
         
